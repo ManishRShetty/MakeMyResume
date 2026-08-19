@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { Sparkles, FileText, Briefcase, Settings, Sun, Moon } from "lucide-react";
+import Image from "next/image";
+import { Settings, Sun, Moon } from "lucide-react";
 
 interface NavbarProps {
   activeTab: "studio" | "master" | "vault";
@@ -22,20 +23,21 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   return (
     <header className="sticky top-0 z-50 w-full apple-nav-blur border-b border-black/[0.06] dark:border-white/[0.08] transition-all duration-300">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         
-        {/* Brand */}
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab("studio")}>
-          <div className="w-7 h-7 rounded-lg bg-black dark:bg-white flex items-center justify-center text-white dark:text-black font-semibold text-xs transition-transform hover:scale-105">
-            <Sparkles className="w-3.5 h-3.5" />
-          </div>
-          <div className="flex items-baseline gap-1.5">
-            <span className="font-semibold text-sm tracking-tight text-[#1d1d1f] dark:text-[#f5f5f7]">
-              MakeMyResume
-            </span>
-            <span className="text-[11px] font-medium text-[#86868b]">
-              Pro
-            </span>
+        {/* Brand / Logo (Image contains full logo with text) */}
+        <div
+          className="flex items-center cursor-pointer group"
+          onClick={() => setActiveTab("studio")}
+        >
+          <div className="relative h-8 sm:h-9 w-32 sm:w-36 transition-transform duration-200 group-hover:scale-105">
+            <Image
+              src="/logo.png"
+              alt="MakeMyResume"
+              fill
+              className="object-contain object-left"
+              priority
+            />
           </div>
         </div>
 
@@ -43,7 +45,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <nav className="hidden md:flex items-center apple-segment-wrapper">
           <button
             onClick={() => setActiveTab("studio")}
-            className={`px-4 py-1 text-xs font-medium rounded-full transition-all duration-200 ${
+            className={`px-4 py-1.5 text-xs font-medium rounded-full transition-all duration-200 ${
               activeTab === "studio"
                 ? "apple-segment-active font-semibold"
                 : "text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-white"
@@ -54,18 +56,18 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <button
             onClick={() => setActiveTab("master")}
-            className={`px-4 py-1 text-xs font-medium rounded-full transition-all duration-200 ${
+            className={`px-4 py-1.5 text-xs font-medium rounded-full transition-all duration-200 ${
               activeTab === "master"
                 ? "apple-segment-active font-semibold"
                 : "text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-white"
             }`}
           >
-            Master LaTeX
+            Master Resume & Editor
           </button>
 
           <button
             onClick={() => setActiveTab("vault")}
-            className={`flex items-center gap-1.5 px-4 py-1 text-xs font-medium rounded-full transition-all duration-200 ${
+            className={`flex items-center gap-1.5 px-4 py-1.5 text-xs font-medium rounded-full transition-all duration-200 ${
               activeTab === "vault"
                 ? "apple-segment-active font-semibold"
                 : "text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-white"
@@ -81,7 +83,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </nav>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           <button
             onClick={onToggleTheme}
             aria-label="Toggle Theme"
