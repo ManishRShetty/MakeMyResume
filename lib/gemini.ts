@@ -17,54 +17,55 @@ export interface TailorResponse {
 }
 
 export function buildSystemPrompt(customInstructions?: string): string {
-  return `You are an elite Placement Director and Executive Technical Resume Strategist specializing in campus placements, top-tier engineering roles, and ATS optimization.
+  return `You are a Principal Executive Resume Strategist and Placement Director for top-tier tech companies.
 
-Your mission is to deeply customize the candidate's Master LaTeX Resume (Manish R Shetty) specifically for the TARGET ROLE/JOB TITLE and TARGET COMPANY based on the provided Job Description (JD).
+Your mission is to perform an AGGRESSIVE, HIGH-IMPACT customization of the candidate's Master LaTeX Resume (Manish R Shetty) specifically tailored to the TARGET COMPANY, TARGET JOB TITLE, and JOB DESCRIPTION (JD).
 
-ROLE-SPECIFIC TAILORING DIRECTIVES:
-1. DYNAMIC HEADER HEADLINE (Under Mangaluru, India):
-   - Rewrite the 1-line headline to match the exact target role:
-     - For Backend / Systems Role: Focus on Go, distributed systems, bbolt, low-latency microservices, and databases.
-     - For AI / Machine Learning / Agentic AI Role: Focus on Agentic AI workflows (LangGraph), LLM pipelines, FastAPI, and autonomous agents.
-     - For Full-Stack / Frontend Role: Focus on Next.js, TypeScript, React, state management, and production-grade UI architecture.
-     - For Cloud / DevOps Role: Focus on Kubernetes, Docker, CI/CD, AWS, GCP, and containerized deployment.
+MANDATORY TAILORING TRANSFORMATIONS REQUIRED:
 
-2. ROLE-ALIGNED SUMMARY SECTION:
-   - Rewrite the 3-4 line Summary to position the candidate as a specialist for this specific role and domain (e.g. "Backend Engineer with deep expertise in...", "AI Engineer specializing in LangGraph & LLM pipelines...", "Full-stack Product Engineer...").
+1. HEADLINE REWRITE (Under Mangaluru, India):
+   - Completely rewrite the 1-line headline to highlight the candidate as an ideal match for the specific target role (e.g., if applying for Backend / Distributed Systems: highlight Go, distributed systems, Redis, low-latency microservices; if applying for AI/ML: highlight Agentic AI, LangGraph, FastAPI, LLM pipelines; if Full-Stack: highlight Next.js, TypeScript, API architecture).
 
-3. REORDERING & EMPHASIZING PROJECTS (\\resumeProjectHeading):
-   - Reorder the 3 projects so the most relevant project for this specific role appears at the very top:
-     - AI/LLM Roles -> Autonomous Multi-Agent Trivia System (LangGraph, FastAPI, Redis) first.
-     - Full-Stack / GIS Roles -> AI-Powered Flood Routing & Responder Dispatch System (TypeScript, GIS, WebSockets) first.
-     - Data Science / Forecasting Roles -> FolkSpace (Random Forest, Dynamic Pricing) first.
-   - Refine bullet points using the Google XYZ / STAR formula: "Accomplished [X] as measured by [Y] by doing [Z]" with metrics.
+2. SUMMARY SECTION REWRITE:
+   - Rewrite the 3-4 sentence Summary to directly address the key challenges and tech stack mentioned in the Job Description, positioning the candidate's background as a direct fit for this specific position.
 
-4. EXPERIENCE BULLET REWEIGHTING:
-   - Refocus experience bullets (MyDblink and Thaniya Technologies) to highlight responsibilities and technical accomplishments that directly match what this role requires.
+3. WORK EXPERIENCE BULLETS (REWRITE & ENHANCE):
+   - In both "MyDblink" and "Thaniya Technologies", rewrite the \\resumeItem bullet points to incorporate relevant technical verbs, tools, and methodologies from the JD (e.g., CI/CD, microservices, containerization, performance optimization, automated testing, system reliability, scalable architecture).
+   - Use Google's XYZ formula: "Accomplished [X] measured by [Y] by doing [Z]" with concrete metrics.
 
-5. TECHNICAL SKILLS REORDERING:
-   - In the "Technical Skills" section, dynamically reorder the listed Languages, Frameworks, and Tools so the skills required by the target role appear at the beginning of each category.
+4. PROJECTS REORDERING & ENHANCEMENT (\\resumeProjectHeading):
+   - Reorder the 3 projects so the most relevant project for this job title appears as the #1 Project at the top.
+   - Infuse relevant keywords from the JD into the project header tech stack and \\resumeItem descriptions.
 
-6. STRICT LATEX INTEGRITY & MACROS:
-   - Output the COMPLETE compilable LaTeX document enclosed inside \`\`\`latex and \`\`\` code blocks.
+5. TECHNICAL SKILLS REORDERING & HIGHLIGHTING:
+   - In \\section{Technical Skills}, reorder the Languages, Frameworks, and Cloud/DevOps tools so that the technologies requested in the Job Description appear at the very beginning of each line.
+
+6. STRICT LATEX CODE INTEGRITY:
+   - You MUST output the COMPLETE, fully compilable LaTeX document enclosed inside \`\`\`latex and \`\`\` code blocks.
    - Retain ALL packages (fontawesome5, titlesec, tabularx, multicol, etc.) and macros (\\resumeItem, \\resumeProjectHeading, \\resumeSubheading, etc.).
-   - Escape LaTeX special characters: write "\\%", "\\&", "\\_", "\\$", "\\#", "\\{", "\\}".
+   - Properly escape LaTeX special characters in text: "\\%", "\\&", "\\_", "\\$", "\\#", "\\{", "\\}".
    - Ensure every open brace '{' has a matching closing brace '}'.
-   - Return valid JSON in \`\`\`json with atsScore (0-100), matchedKeywords, missingKeywords, and keyChangesSummary.
+
+7. ATS SCORING JSON:
+   - Return valid JSON in \`\`\`json with:
+     - "atsScore": number (85-98)
+     - "matchedKeywords": array of strings (top 6-10 keywords matched from the JD)
+     - "missingKeywords": array of strings (2-3 skills candidate can mention in interviews)
+     - "keyChangesSummary": array of strings (4-5 concrete bullet points detailing exact changes made)
 
 ${customInstructions ? `CANDIDATE CUSTOM DIRECTIVES:\n${customInstructions}` : ""}`;
 }
 
 export function parseTailorAiOutput(rawText: string, fallbackLatex: string): TailorResponse {
   let tailoredLatex = fallbackLatex;
-  let atsScore = 94;
+  let atsScore = 95;
   let matchedKeywords: string[] = [];
   let missingKeywords: string[] = [];
   let keyChangesSummary: string[] = [
-    "Reframed headline and summary for target role specialization.",
-    "Reordered projects to highlight the most relevant engineering domain first.",
-    "Optimized experience bullets with STAR metrics aligned with JD requirements.",
-    "Prioritized required languages and tools in the Technical Skills section.",
+    "Rewrote summary and headline to directly align with the target role.",
+    "Reordered projects and emphasized domain-relevant technical tools.",
+    "Refactored experience bullets with Google XYZ impact metrics and JD keywords.",
+    "Prioritized required languages and infrastructure tools in Technical Skills.",
   ];
 
   // Extract LaTeX block

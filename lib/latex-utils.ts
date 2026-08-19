@@ -7,19 +7,21 @@ export interface DiffPart {
 }
 
 /**
- * Safely escape LaTeX special characters in user-provided or AI-generated text.
+ * Safely escape plain text user input for LaTeX insertion
+ * (Only escapes special chars in raw text, not LaTeX markup)
  */
-export function escapeLatex(text: string): string {
+export function escapeLatexText(text: string): string {
   if (!text) return "";
-  
   return text
     .replace(/(?<!\\)&/g, "\\&")
     .replace(/(?<!\\)%/g, "\\%")
     .replace(/(?<!\\)\$/g, "\\$")
     .replace(/(?<!\\)#/g, "\\#")
-    .replace(/(?<!\\)_/g, "\\_")
-    .replace(/(?<!\\)\{/g, "\\{")
-    .replace(/(?<!\\)\}/g, "\\}");
+    .replace(/(?<!\\)_/g, "\\_");
+}
+
+export function escapeLatex(text: string): string {
+  return escapeLatexText(text);
 }
 
 /**
@@ -78,21 +80,10 @@ export function extractPlainTextFromLatex(latex: string): string {
     text = text.substring(0, docEnd);
   }
 
-  // Strip LaTeX comments
   text = text.replace(/%.*$/gm, "");
-
-  // Transform project headings
   text = text.replace(/\\resumeProjectHeading\{([^}]+)\}\{([^}]+)\}/g, "\n[PROJ] $1 | $2\n");
-
-  // Transform subheadings
   text = text.replace(/\\resumeSubheading\{([^}]+)\}\{([^}]+)\}\{([^}]+)\}\{([^}]+)\}/g, "\n[SUBHEAD] $1 ($2) --- $3 ($4)\n");
-
-  // Clean fontawesome / raisebox
-  text = text
-    .replace(/\\raisebox\{[^}]+\}\{\\fa\w+\\?\s*/g, "")
-    .replace(/\\fa\w+\\?\s*/g, "");
-
-  // Clean markup
+  text = text.replace(/\\raisebox\{[^}]+\}\{\\fa\w+\\?\s*/g, "").replace(/\\fa\w+\\?\s*/g, "");
   text = text
     .replace(/\\textbf\{([^}]+)\}/g, "**$1**")
     .replace(/\\textit\{([^}]+)\}/g, "*$1*")
