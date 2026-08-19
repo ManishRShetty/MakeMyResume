@@ -101,7 +101,13 @@ export const TailorStudioTab: React.FC<TailorStudioTabProps> = ({
         }),
       });
 
-      const data = await res.json();
+      const responseText = await res.text();
+      let data: any;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseErr) {
+        throw new Error(`Server returned unexpected response (${res.status}): ${responseText.substring(0, 150)}`);
+      }
 
       if (!res.ok) {
         throw new Error(data.error || "Failed to tailor resume");
@@ -129,8 +135,8 @@ export const TailorStudioTab: React.FC<TailorStudioTabProps> = ({
       addOrUpdateApplication(newApp);
       onUpdateVaultCount();
     } catch (err: any) {
-      console.error(err);
-      setErrorMessage(err.message || "An unexpected error occurred during tailoring.");
+      console.error("Tailor Error:", err);
+      setErrorMessage(err.message || "An error occurred during resume tailoring.");
     } finally {
       setIsLoading(false);
     }
@@ -161,7 +167,6 @@ export const TailorStudioTab: React.FC<TailorStudioTabProps> = ({
 
   return (
     <div className="space-y-8 animate-fade-in">
-      
       {/* Split Bento Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
@@ -389,7 +394,7 @@ export const TailorStudioTab: React.FC<TailorStudioTabProps> = ({
 
         </div>
 
-        {/* Right Column: Output Viewer (PDF Preview / Diff / LaTeX Code) */}
+        {/* Right Column: Output Viewer */}
         <div className="lg:col-span-7 space-y-6">
           <div className="apple-bento-card p-6 sm:p-8 space-y-6">
             

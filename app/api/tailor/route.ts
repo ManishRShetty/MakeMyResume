@@ -3,9 +3,30 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { buildSystemPrompt, parseTailorAiOutput, TailorRequest, TailorResponse } from "@/lib/gemini";
 import { escapeLatex } from "@/lib/latex-utils";
 
+const SUPPORTED_GEMINI_MODELS = [
+  "gemini-3.7-flash",
+  "gemini-2.5-flash",
+  "gemini-3.6-flash",
+  "gemini-3.5-flash",
+  "gemini-3.5-flash-lite",
+  "gemini-3.1-flash-lite",
+  "gemini-3.1-pro-preview",
+  "gemini-3-flash-preview",
+  "gemini-2.0-flash",
+  "gemini-1.5-flash-latest",
+  "gemini-1.5-flash",
+  "gemini-pro"
+];
+
 export async function POST(req: NextRequest) {
   try {
-    const body: TailorRequest = await req.json();
+    let body: TailorRequest;
+    try {
+      body = await req.json();
+    } catch (_) {
+      return NextResponse.json({ error: "Invalid request payload. Expected JSON." }, { status: 400 });
+    }
+
     const { masterLatex, companyName, jobTitle, jobDescription, apiKey, modelName, customPrompt } = body;
 
     if (!masterLatex || !jobDescription) {
@@ -15,18 +36,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const effectiveApiKey = apiKey || process.env.GEMINI_API_KEY;
+    const effectiveApiKey = (apiKey || process.env.GEMINI_API_KEY || "").trim();
 
-    // If API key is available, call Gemini API
+    // If API key is provided, execute Gemini API call with model fallback
     if (effectiveApiKey) {
-      try {
-        const genAI = new GoogleGenerativeAI(effectiveApiKey);
-        const model = genAI.getGenerativeModel({
-          model: modelName || "gemini-1.5-flash",
-        });
-
-        const systemPrompt = buildSystemPrompt(customPrompt);
-        const userPrompt = `TARGET COMPANY: ${companyName || "Target Tech Company"}
+      const genAI = new GoogleGenerativeAI(effectiveApiKey);
+      const systemPrompt = buildSystemPrompt(customPrompt);
+      const userPrompt = `TARGET COMPANY: ${companyName || "Target Tech Company"}
 TARGET ROLE/POSITION: ${jobTitle || "Software Engineer"}
 
 JOB DESCRIPTION (JD):
@@ -37,41 +53,68 @@ ${masterLatex}
 
 Please analyze the JD, calculate ATS score & keywords, rewrite/optimize bullets with STAR formula, and output both the updated complete LaTeX code and JSON stats.`;
 
-        const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
-        const response = await model.generateContent(fullPrompt);
-        const rawText = response.response.text() || "";
+      const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
+      
+      const requestedModel = modelName || "gemini-3.7-flash";
+      const modelsToTry = [requestedModel, ...SUPPORTED_GEMINI_MODELS.filter(m => m !== requestedModel)];
+
+      let lastErrorMsg = "";
+      let rawText = "";
+
+      for (const modelToUse of modelsToTry) {
+        try {
+          const model = genAI.getGenerativeModel({ model: modelToUse });
+          const response = await model.generateContent(fullPrompt);
+          rawText = response.response.text() || "";
+          if (rawText) {
+            lastErrorMsg = "";
+            break;
+          }
+        } catch (err: any) {
+          lastErrorMsg = err?.message || String(err);
+          console.warn(`Model ${modelToUse} attempt failed:`, lastErrorMsg);
+          if (lastErrorMsg.includes("API_KEY_INVALID") || lastErrorMsg.includes("API key not valid")) {
+            return NextResponse.json(
+              { error: "Invalid Gemini API Key. Please check the key in Settings." },
+              { status: 401 }
+            );
+          }
+        }
+      }
+
+      if (rawText) {
         const parsed = parseTailorAiOutput(rawText, masterLatex);
         return NextResponse.json(parsed);
-      } catch (geminiError: any) {
-        console.error("Gemini API error:", geminiError);
+      }
+
+      if (lastErrorMsg) {
         return NextResponse.json(
-          { error: `Gemini API Error: ${geminiError.message || "Failed to generate tailored resume"}` },
+          { error: `Gemini API Error: ${lastErrorMsg}` },
           { status: 500 }
         );
       }
     }
 
-    // Smart Offline Mode / Demo Mode (No API key required out-of-the-box)
+    // Smart Offline Mode / Demo Mode (No API key provided)
     const techKeywords = [
-      "TypeScript", "React", "Next.js", "Python", "Go", "Java", "Docker", "Kubernetes",
-      "AWS", "PostgreSQL", "GraphQL", "Redis", "Kafka", "CI/CD", "Microservices",
-      "Distributed Systems", "RESTful APIs", "GCP", "Azure", "TailwindCSS", "Node.js"
+      "Go", "Python", "TypeScript", "JavaScript", "React", "Next.js", "FastAPI",
+      "Docker", "Kubernetes", "Redis", "LangGraph", "Agentic AI", "GIS", "WebSockets",
+      "AWS", "Google Cloud", "PostgreSQL", "CI/CD", "Distributed Systems", "RESTful APIs"
     ];
 
     const matchedFromJd = techKeywords.filter((tech) =>
       jobDescription.toLowerCase().includes(tech.toLowerCase())
     );
 
-    const activeMatched = matchedFromJd.length > 0 ? matchedFromJd : ["TypeScript", "Distributed Systems", "Cloud Computing", "REST APIs"];
-    const missing = ["Kafka", "GraphQL", "Kubernetes"].filter(k => !activeMatched.includes(k));
+    const activeMatched = matchedFromJd.length > 0 ? matchedFromJd : ["Go", "TypeScript", "Next.js", "Docker", "Kubernetes", "LangGraph"];
+    const missing = ["Kafka", "GraphQL", "Rust"].filter(k => !activeMatched.includes(k));
 
-    // Perform rule-based tailoring on master latex
     let tailored = masterLatex;
     
-    if (companyName && tailored.includes("Distributed Task Queue")) {
+    if (companyName) {
       tailored = tailored.replace(
-        "Distributed Task Queue",
-        `High-Throughput Distributed Pipeline (${companyName} Architecture Aligned)`
+        /Systems Engineer specializing in Go, native B-Tree database architecture/,
+        `Systems & AI Engineer aligned with ${companyName}'s high-scale stack; specializing in Go, native B-Tree architecture`
       );
     }
 
@@ -79,19 +122,19 @@ Please analyze the JD, calculate ATS score & keywords, rewrite/optimize bullets 
 
     const demoResponse: TailorResponse = {
       tailoredLatex: tailored,
-      atsScore: Math.min(94, 78 + activeMatched.length * 3),
+      atsScore: Math.min(96, 84 + activeMatched.length * 2),
       matchedKeywords: activeMatched,
-      missingKeywords: missing.slice(0, 3),
+      missingKeywords: missing.slice(0, 2),
       keyChangesSummary: [
-        `Aligned tech stack keywords (${activeMatched.slice(0, 3).join(", ")}) with ${companyName || "the role"}.`,
-        "Restructured action verbs and quantified impact metrics using Google XYZ STAR formula.",
-        "Verified and escaped LaTeX symbols to ensure clean PDF rendering.",
+        `Aligned core headline & tech stack keywords (${activeMatched.slice(0, 4).join(", ")}) for ${companyName || "the role"}.`,
+        "Enhanced experience and project bullet points with STAR action metrics.",
+        "Preserved 100% LaTeX syntax and escaped special characters for flawless PDF compilation.",
       ],
     };
 
     return NextResponse.json(demoResponse);
   } catch (error: any) {
     console.error("Tailor API Route error:", error);
-    return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: error?.message || "Internal server error" }, { status: 500 });
   }
 }

@@ -86,7 +86,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               Settings & Preferences
             </h2>
             <p className="text-xs text-[#86868b] mt-0.5">
-              Customize AI models and placement preferences.
+              Configure your Gemini AI model and API key.
             </p>
           </div>
           <button
@@ -117,7 +117,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               type="password"
               value={settings.geminiApiKey}
               onChange={(e) => setLocalSettings({ ...settings, geminiApiKey: e.target.value })}
-              placeholder="AIzaSy... (Leave empty for smart offline demo mode)"
+              placeholder="AIzaSy... (Paste your Google Gemini API Key here)"
               className="w-full px-4 py-2.5 rounded-2xl bg-[#f5f5f7] dark:bg-[#2c2c2e] border border-black/[0.06] dark:border-white/[0.08] text-xs font-mono text-[#1d1d1f] dark:text-[#f5f5f7] apple-focus"
             />
             <p className="text-[11px] text-[#86868b]">
@@ -128,16 +128,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {/* AI Model Selection */}
           <div className="space-y-2">
             <label className="text-xs font-medium text-[#1d1d1f] dark:text-[#f5f5f7]">
-              AI Tailoring Model
+              AI Tailoring Model (Gemini 3 & 2.5)
             </label>
             <select
               value={settings.modelName}
               onChange={(e) => setLocalSettings({ ...settings, modelName: e.target.value })}
               className="w-full px-4 py-2.5 rounded-2xl bg-[#f5f5f7] dark:bg-[#2c2c2e] border border-black/[0.06] dark:border-white/[0.08] text-xs text-[#1d1d1f] dark:text-[#f5f5f7] apple-focus"
             >
-              <option value="gemini-1.5-flash">Gemini 1.5 Flash (Ultra Fast & Concise)</option>
-              <option value="gemini-1.5-pro">Gemini 1.5 Pro (Deep Technical STAR Optimization)</option>
-              <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash</option>
+              <option value="gemini-3.7-flash">Gemini 3.7 Flash (Default - State of the Art)</option>
+              <option value="gemini-2.5-flash">Gemini 2.5 Flash (Ultra Fast Reasoning)</option>
+              <option value="gemini-3.6-flash">Gemini 3.6 Flash</option>
+              <option value="gemini-3.5-flash">Gemini 3.5 Flash</option>
+              <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash-Lite</option>
+              <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash-Lite</option>
+              <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro (Deep Technical Placement Optimization)</option>
+              <option value="gemini-3-flash-preview">Gemini 3 Flash Preview</option>
+              <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
             </select>
           </div>
 
@@ -150,7 +156,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               rows={3}
               value={settings.customSystemPrompt || ""}
               onChange={(e) => setLocalSettings({ ...settings, customSystemPrompt: e.target.value })}
-              placeholder="E.g. Highlight backend scalability, Docker, and quantitative metrics over frontend."
+              placeholder="E.g. Highlight backend scalability, Go, Docker, Kubernetes, and Agentic AI workflows."
               className="w-full p-4 rounded-2xl bg-[#f5f5f7] dark:bg-[#2c2c2e] border border-black/[0.06] dark:border-white/[0.08] text-xs text-[#1d1d1f] dark:text-[#f5f5f7] apple-focus"
             />
           </div>

@@ -25,14 +25,14 @@ export interface UserSettings {
 }
 
 const STORAGE_KEYS = {
-  MASTER_LATEX: "makemyresume_master_latex_v2",
-  APPLICATIONS: "makemyresume_applications_v2",
-  SETTINGS: "makemyresume_settings_v2",
+  MASTER_LATEX: "makemyresume_master_latex_v3",
+  APPLICATIONS: "makemyresume_applications_v3",
+  SETTINGS: "makemyresume_settings_v3",
 };
 
 export const defaultSettings: UserSettings = {
   geminiApiKey: "",
-  modelName: "gemini-1.5-flash",
+  modelName: "gemini-3.7-flash",
   temperature: 0.2,
   theme: "light",
 };
