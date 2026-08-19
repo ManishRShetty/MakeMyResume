@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
 
     const safeFilename = (filename || "resume").replace(/[^a-zA-Z0-9_-]/g, "_");
 
-    // 1. Try local pdflatex / tectonic if installed
+    // 1. Try local pdflatex if installed on system
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "resume-compile-"));
     const texPath = path.join(tempDir, "document.tex");
     const pdfPath = path.join(tempDir, "document.pdf");
@@ -25,14 +25,12 @@ export async function POST(req: NextRequest) {
     fs.writeFileSync(texPath, latex, "utf8");
 
     try {
-      // Try pdflatex command
       await execAsync(`pdflatex -interaction=nonstopmode -output-directory="${tempDir}" "${texPath}"`, {
-        timeout: 15000,
+        timeout: 10000,
       });
 
       if (fs.existsSync(pdfPath)) {
         const pdfBuffer = fs.readFileSync(pdfPath);
-        // Clean up temp
         try {
           fs.rmSync(tempDir, { recursive: true, force: true });
         } catch (_) {}
@@ -40,13 +38,12 @@ export async function POST(req: NextRequest) {
         return new NextResponse(pdfBuffer, {
           headers: {
             "Content-Type": "application/pdf",
-            "Content-Disposition": `attachment; filename="${safeFilename}.pdf"`,
+            "Content-Disposition": `inline; filename="${safeFilename}.pdf"`,
           },
         });
       }
-    } catch (localCompileErr) {
-      // Local pdflatex not available or failed; fallback to online compilation or client renderer
-      console.log("Local pdflatex not available, trying remote LaTeX compilation service...");
+    } catch (_) {
+      // Local pdflatex not found; seamlessly use cloud LaTeX compiler engine
     } finally {
       try {
         if (fs.existsSync(tempDir)) {
@@ -55,38 +52,53 @@ export async function POST(req: NextRequest) {
       } catch (_) {}
     }
 
-    // 2. Try remote latexonline compilation service fallback
+    // 2. High-performance Cloud LaTeX Compilation Engine (Overleaf-identical pdflatex)
     try {
-      const remoteRes = await fetch("https://latexonline.cc/compile?text=" + encodeURIComponent(latex), {
-        method: "GET",
-        headers: {
-          "User-Agent": "MakeMyResume/1.0",
-        },
+      const payload = JSON.stringify({
+        compiler: "pdflatex",
+        rootResourcePath: "main.tex",
+        resources: [
+          {
+            path: "main.tex",
+            content: latex,
+          },
+        ],
       });
 
-      if (remoteRes.ok) {
-        const pdfArrayBuffer = await remoteRes.arrayBuffer();
+      const compileRes = await fetch("https://latex.ytotech.com/builds/sync", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "User-Agent": "MakeMyResume/1.0",
+        },
+        body: payload,
+      });
+
+      if (compileRes.ok) {
+        const pdfArrayBuffer = await compileRes.arrayBuffer();
         return new NextResponse(Buffer.from(pdfArrayBuffer), {
           headers: {
             "Content-Type": "application/pdf",
-            "Content-Disposition": `attachment; filename="${safeFilename}.pdf"`,
+            "Content-Disposition": `inline; filename="${safeFilename}.pdf"`,
           },
         });
+      } else {
+        const errText = await compileRes.text();
+        console.warn("Cloud LaTeX compilation returned status:", compileRes.status, errText);
       }
     } catch (remoteErr) {
-      console.warn("Remote LaTeX compilation failed:", remoteErr);
+      console.error("Cloud LaTeX compilation failed:", remoteErr);
     }
 
     return NextResponse.json(
       {
-        success: false,
-        message: "LaTeX compiler not running locally. Client will render high-fidelity PDF preview and provide source .tex.",
+        error: "Compilation unavailable. Please download the .tex source file.",
         latexSource: latex,
       },
-      { status: 200 }
+      { status: 500 }
     );
   } catch (error: any) {
-    console.error("Compilation error:", error);
+    console.error("Compilation route error:", error);
     return NextResponse.json({ error: error.message || "Failed to compile LaTeX" }, { status: 500 });
   }
 }
