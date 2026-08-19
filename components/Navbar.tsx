@@ -23,14 +23,14 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   return (
     <header className="sticky top-0 z-50 w-full apple-nav-blur border-b border-black/[0.06] dark:border-white/[0.08] transition-all duration-300">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-18 flex items-center justify-between">
         
-        {/* Brand / Logo (Image contains full logo with text) */}
+        {/* Brand / Logo (Large prominent size) */}
         <div
           className="flex items-center cursor-pointer group"
           onClick={() => setActiveTab("studio")}
         >
-          <div className="relative h-8 sm:h-9 w-32 sm:w-36 transition-transform duration-200 group-hover:scale-105">
+          <div className="relative h-10 sm:h-12 w-44 sm:w-56 transition-transform duration-200 group-hover:scale-105">
             <Image
               src="/logo.png"
               alt="MakeMyResume"
