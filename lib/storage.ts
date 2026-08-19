@@ -1,4 +1,4 @@
-import { DEFAULT_TEMPLATES } from "./templates/default-templates";
+import { DEFAULT_TEMPLATES, MANISH_MASTER_LATEX } from "./templates/default-templates";
 
 export interface TailoredApplication {
   id: string;
@@ -25,26 +25,30 @@ export interface UserSettings {
 }
 
 const STORAGE_KEYS = {
-  MASTER_LATEX: "makemyresume_master_latex",
-  APPLICATIONS: "makemyresume_applications",
-  SETTINGS: "makemyresume_settings",
+  MASTER_LATEX: "makemyresume_master_latex_v2",
+  APPLICATIONS: "makemyresume_applications_v2",
+  SETTINGS: "makemyresume_settings_v2",
 };
 
 export const defaultSettings: UserSettings = {
   geminiApiKey: "",
   modelName: "gemini-1.5-flash",
   temperature: 0.2,
-  theme: "dark",
+  theme: "light",
 };
 
 export function getMasterLatex(): string {
-  if (typeof window === "undefined") return DEFAULT_TEMPLATES[0].latex;
+  if (typeof window === "undefined") return MANISH_MASTER_LATEX;
   try {
     const saved = localStorage.getItem(STORAGE_KEYS.MASTER_LATEX);
-    return saved || DEFAULT_TEMPLATES[0].latex;
+    if (!saved || saved.includes("Alex Morgan")) {
+      localStorage.setItem(STORAGE_KEYS.MASTER_LATEX, MANISH_MASTER_LATEX);
+      return MANISH_MASTER_LATEX;
+    }
+    return saved;
   } catch (e) {
     console.error("Failed to read master latex", e);
-    return DEFAULT_TEMPLATES[0].latex;
+    return MANISH_MASTER_LATEX;
   }
 }
 

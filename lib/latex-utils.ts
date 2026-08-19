@@ -12,21 +12,13 @@ export interface DiffPart {
 export function escapeLatex(text: string): string {
   if (!text) return "";
   
-  // Characters that need escaping in standard LaTeX text
   return text
-    // Replace unescaped & with \&
     .replace(/(?<!\\)&/g, "\\&")
-    // Replace unescaped % with \%
     .replace(/(?<!\\)%/g, "\\%")
-    // Replace unescaped $ with \$
     .replace(/(?<!\\)\$/g, "\\$")
-    // Replace unescaped # with \#
     .replace(/(?<!\\)#/g, "\\#")
-    // Replace unescaped _ with \_
     .replace(/(?<!\\)_/g, "\\_")
-    // Replace unescaped { with \{
     .replace(/(?<!\\)\{/g, "\\{")
-    // Replace unescaped } with \}
     .replace(/(?<!\\)\}/g, "\\}");
 }
 
@@ -50,7 +42,6 @@ export function validateLatexSyntax(latex: string): { isValid: boolean; errors: 
     errors.push("Missing \\end{document}");
   }
 
-  // Check balanced braces count (simple heuristic)
   let braceCount = 0;
   for (let i = 0; i < latex.length; i++) {
     if (latex[i] === "{" && (i === 0 || latex[i - 1] !== "\\")) {
@@ -71,14 +62,13 @@ export function validateLatexSyntax(latex: string): { isValid: boolean; errors: 
 }
 
 /**
- * Extract plain text summary from LaTeX code for ATS score comparisons and quick previews
+ * Extract clean, structured preview blocks from Manish's LaTeX format
  */
 export function extractPlainTextFromLatex(latex: string): string {
   if (!latex) return "";
 
   let text = latex;
 
-  // Remove preamble
   const docStart = text.indexOf("\\begin{document}");
   if (docStart !== -1) {
     text = text.substring(docStart + 16);
@@ -91,17 +81,30 @@ export function extractPlainTextFromLatex(latex: string): string {
   // Strip LaTeX comments
   text = text.replace(/%.*$/gm, "");
 
-  // Strip common commands while retaining their content
+  // Transform project headings
+  text = text.replace(/\\resumeProjectHeading\{([^}]+)\}\{([^}]+)\}/g, "\n[PROJ] $1 | $2\n");
+
+  // Transform subheadings
+  text = text.replace(/\\resumeSubheading\{([^}]+)\}\{([^}]+)\}\{([^}]+)\}\{([^}]+)\}/g, "\n[SUBHEAD] $1 ($2) --- $3 ($4)\n");
+
+  // Clean fontawesome / raisebox
   text = text
-    .replace(/\\textbf\{([^}]+)\}/g, "$1")
-    .replace(/\\textit\{([^}]+)\}/g, "$1")
-    .replace(/\\emph\{([^}]+)\}/g, "$1")
+    .replace(/\\raisebox\{[^}]+\}\{\\fa\w+\\?\s*/g, "")
+    .replace(/\\fa\w+\\?\s*/g, "");
+
+  // Clean markup
+  text = text
+    .replace(/\\textbf\{([^}]+)\}/g, "**$1**")
+    .replace(/\\textit\{([^}]+)\}/g, "*$1*")
+    .replace(/\\emph\{([^}]+)\}/g, "*$1*")
     .replace(/\\underline\{([^}]+)\}/g, "$1")
     .replace(/\\href\{[^}]+\}\{([^}]+)\}/g, "$1")
     .replace(/\\resumeItem\{([^}]+)\}/g, "• $1\n")
     .replace(/\\item\s*/g, "• ")
     .replace(/\\section\*?\{([^}]+)\}/g, "\n\n=== $1 ===\n")
-    .replace(/\\resumeSubheading\{([^}]+)\}\{([^}]+)\}\{([^}]+)\}\{([^}]+)\}/g, "\n$1 ($2)\n$3 - $4\n")
+    .replace(/\\small\{([^}]+)\}/g, "$1")
+    .replace(/\\Huge\s*/g, "")
+    .replace(/\\scshape\s*/g, "")
     .replace(/\\\w+(\[[^\]]*\])?(\{([^}]*)\})?/g, " ")
     .replace(/[{}]/g, "")
     .replace(/\\\\/g, "\n")
@@ -109,35 +112,8 @@ export function extractPlainTextFromLatex(latex: string): string {
     .replace(/\\%/g, "%")
     .replace(/\\_/g, "_")
     .replace(/\\\$/g, "$")
-    .replace(/\\#/g, "#");
+    .replace(/\\#/g, "#")
+    .replace(/~/g, " ");
 
-  // Normalize spacing
   return text.replace(/\n\s*\n\s*\n/g, "\n\n").trim();
-}
-
-/**
- * Parse sections from LaTeX to allow targeted replacement
- */
-export interface ResumeSections {
-  heading?: string;
-  education?: string;
-  skills?: string;
-  experience?: string;
-  projects?: string;
-  achievements?: string;
-  rawPreamble: string;
-  rawClosing: string;
-}
-
-export function parseLatexSections(latex: string): ResumeSections {
-  const docStart = latex.indexOf("\\begin{document}");
-  const docEnd = latex.indexOf("\\end{document}");
-
-  const rawPreamble = docStart !== -1 ? latex.substring(0, docStart + 16) : "";
-  const rawClosing = docEnd !== -1 ? latex.substring(docEnd) : "\\end{document}";
-  
-  return {
-    rawPreamble,
-    rawClosing,
-  };
 }

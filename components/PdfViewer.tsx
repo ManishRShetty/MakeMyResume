@@ -35,7 +35,7 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
     setPdfSuccess(false);
 
     try {
-      const safeName = `${companyName || "Company"}_${jobTitle || "Resume"}_Resume`
+      const safeName = `Manish_R_Shetty_${companyName || "Tailored"}_Resume`
         .replace(/[^a-zA-Z0-9_-]/g, "_");
 
       const res = await fetch("/api/compile", {
@@ -59,7 +59,6 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
         return;
       }
 
-      // High fidelity HTML to Canvas to jsPDF fallback
       if (printRef.current) {
         const element = printRef.current;
         const canvas = await html2canvas(element, {
@@ -81,14 +80,14 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
       }
     } catch (e) {
       console.error("PDF generation error:", e);
-      alert("Failed to export PDF. You can also download the .tex source directly.");
+      alert("Failed to export PDF automatically. You can download the .tex source file directly.");
     } finally {
       setIsGeneratingPdf(false);
     }
   };
 
   const handleDownloadTex = () => {
-    const safeName = `${companyName || "Company"}_${jobTitle || "Resume"}_Resume`
+    const safeName = `Manish_R_Shetty_${companyName || "Tailored"}_Resume`
       .replace(/[^a-zA-Z0-9_-]/g, "_");
     const blob = new Blob([latex], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -102,9 +101,7 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
   return (
     <div className="space-y-4">
       {/* Action Bar */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-[#f5f5f7] dark:bg-[#1c1c1e] rounded-full border border-black/[0.06] dark:border-white/[0.08]">
-        
-        {/* Zoom Controls */}
+      <div className="flex items-center justify-between px-4 py-2 bg-[#f5f5f7] dark:bg-[#1c1c1e] rounded-full border border-black/[0.06] dark:border-white/[0.08]">
         <div className="flex items-center gap-1">
           <button
             onClick={handleZoomOut}
@@ -132,7 +129,6 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
           </button>
         </div>
 
-        {/* Download Buttons */}
         <div className="flex items-center gap-2">
           <button
             onClick={handleDownloadTex}
@@ -173,56 +169,99 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
           style={{ transform: `scale(${zoom / 100})`, transformOrigin: "top center" }}
           className="transition-transform duration-150 ease-out"
         >
-          {/* A4 Paper */}
+          {/* A4 Paper replicating Manish's Jake's Resume style */}
           <div
             ref={printRef}
             id="printable-resume-page"
-            className="w-[210mm] min-h-[297mm] bg-white text-[#1d1d1f] shadow-2xl p-[18mm] rounded-sm font-sans select-text leading-snug"
+            className="w-[210mm] min-h-[297mm] bg-white text-[#1d1d1f] shadow-2xl p-[14mm] rounded-sm font-sans select-text leading-snug"
             style={{ boxSizing: "border-box" }}
           >
-            <div className="space-y-4 text-[12px] text-neutral-800">
+            <div className="space-y-3 text-[11.5px] text-neutral-900 leading-normal">
               {plainText.split("\n\n").map((block, idx) => {
                 const trimmed = block.trim();
                 if (!trimmed) return null;
 
+                // Section Headers
                 if (trimmed.startsWith("===") && trimmed.endsWith("===")) {
                   const title = trimmed.replace(/===/g, "").trim();
                   return (
-                    <div key={idx} className="mt-4 pt-1 border-b border-neutral-800 pb-0.5">
-                      <h3 className="font-bold text-[13px] tracking-wider uppercase text-neutral-900">
+                    <div key={idx} className="mt-3 pt-1 border-b border-black pb-0.5">
+                      <h3 className="font-bold text-[12.5px] tracking-wide uppercase text-neutral-900">
                         {title}
                       </h3>
                     </div>
                   );
                 }
 
+                // Heading / Contact Header block (First block)
                 if (idx === 0) {
+                  const headerLines = trimmed.split("\n");
+                  const name = headerLines[0].replace(/\*\*/g, "").trim();
+                  const location = headerLines.length > 1 ? headerLines[1] : "";
+                  const headline = headerLines.length > 2 ? headerLines[2] : "";
+                  const contacts = headerLines.length > 3 ? headerLines.slice(3).join(" · ") : "";
+
                   return (
-                    <div key={idx} className="text-center pb-2 border-b border-neutral-300">
-                      <h1 className="text-[20px] font-bold tracking-tight text-neutral-900 uppercase">
-                        {trimmed.split("\n")[0]}
+                    <div key={idx} className="text-center pb-2">
+                      <h1 className="text-[22px] font-bold tracking-tight text-neutral-900 uppercase">
+                        {name || "Manish R Shetty"}
                       </h1>
-                      <p className="text-[11px] text-neutral-600 mt-1">
-                        {trimmed.split("\n").slice(1).join(" · ")}
-                      </p>
+                      {location && <p className="text-[11px] text-neutral-700">{location}</p>}
+                      {headline && (
+                        <p className="text-[10.5px] text-neutral-800 italic mt-0.5 max-w-xl mx-auto">
+                          {headline}
+                        </p>
+                      )}
+                      {contacts && (
+                        <p className="text-[10.5px] text-neutral-700 mt-1 space-x-1">
+                          {contacts}
+                        </p>
+                      )}
                     </div>
                   );
                 }
 
+                // Project heading format
+                if (trimmed.startsWith("[PROJ]")) {
+                  const content = trimmed.replace(/^\[PROJ\]\s*/, "");
+                  const [projTitle, projDate] = content.split(" | ");
+                  return (
+                    <div key={idx} className="flex justify-between items-baseline font-bold text-neutral-900 mt-1">
+                      <span>{projTitle}</span>
+                      <span className="text-[10.5px] text-neutral-700 font-semibold">{projDate}</span>
+                    </div>
+                  );
+                }
+
+                // Subheading format
+                if (trimmed.startsWith("[SUBHEAD]")) {
+                  const content = trimmed.replace(/^\[SUBHEAD\]\s*/, "");
+                  return (
+                    <div key={idx} className="font-semibold text-neutral-900 mt-1">
+                      {content}
+                    </div>
+                  );
+                }
+
+                // Bullet item lines & text
                 const lines = trimmed.split("\n");
                 return (
-                  <div key={idx} className="space-y-1">
+                  <div key={idx} className="space-y-0.5">
                     {lines.map((line, lIdx) => {
                       if (line.startsWith("•") || line.startsWith("-")) {
                         return (
                           <div key={lIdx} className="flex items-start gap-2 pl-2">
-                            <span className="text-neutral-700 font-bold select-none">•</span>
-                            <span className="leading-relaxed">{line.replace(/^[•-]\s*/, "")}</span>
+                            <span className="text-neutral-800 font-bold select-none">•</span>
+                            <span className="leading-tight text-[11px]">
+                              {line.replace(/^[•-]\s*/, "")}
+                            </span>
                           </div>
                         );
                       }
+
+                      // Sub-bold sections
                       return (
-                        <div key={lIdx} className="font-medium text-neutral-900 leading-snug">
+                        <div key={lIdx} className="text-[11px] leading-tight">
                           {line}
                         </div>
                       );
