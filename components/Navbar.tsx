@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Sparkles, FileText, Briefcase, Settings, Moon, Sun, Download, ShieldCheck } from "lucide-react";
+import { Sparkles, FileText, Briefcase, Settings, Sun, Moon } from "lucide-react";
 
 interface NavbarProps {
   activeTab: "studio" | "master" | "vault";
@@ -21,123 +21,114 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleTheme,
 }) => {
   return (
-    <header className="sticky top-0 z-40 w-full apple-glass border-b border-black/[0.06] dark:border-white/[0.08] transition-colors duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <header className="sticky top-0 z-50 w-full apple-nav-blur border-b border-black/[0.06] dark:border-white/[0.08] transition-all duration-300">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
         
-        {/* Brand / Logo */}
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-apple-blue to-apple-blue-light flex items-center justify-center shadow-md shadow-apple-blue/20 text-white font-semibold">
-            <Sparkles className="w-5 h-5 animate-pulse-subtle" />
+        {/* Brand */}
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab("studio")}>
+          <div className="w-7 h-7 rounded-lg bg-black dark:bg-white flex items-center justify-center text-white dark:text-black font-semibold text-xs transition-transform hover:scale-105">
+            <Sparkles className="w-3.5 h-3.5" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-base tracking-tight text-neutral-900 dark:text-white">
-                MakeMyResume
-              </span>
-              <span className="px-1.5 py-0.5 text-[10px] font-medium rounded-full bg-apple-blue/10 text-apple-blue dark:bg-apple-blue/20 dark:text-apple-blue-light border border-apple-blue/20">
-                AI Pro
-              </span>
-            </div>
-            <p className="text-[11px] text-neutral-500 dark:text-neutral-400 -mt-0.5">
-              Placement LaTeX Tailor
-            </p>
+          <div className="flex items-baseline gap-1.5">
+            <span className="font-semibold text-sm tracking-tight text-[#1d1d1f] dark:text-[#f5f5f7]">
+              MakeMyResume
+            </span>
+            <span className="text-[11px] font-medium text-[#86868b]">
+              Pro
+            </span>
           </div>
         </div>
 
-        {/* Apple-style Sliding Navigation */}
-        <nav className="hidden md:flex items-center p-1 rounded-xl bg-neutral-200/60 dark:bg-neutral-800/60 backdrop-blur-md border border-black/[0.04] dark:border-white/[0.06]">
+        {/* Center Pill Segmented Control */}
+        <nav className="hidden md:flex items-center apple-segment-wrapper">
           <button
             onClick={() => setActiveTab("studio")}
-            className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 ${
+            className={`px-4 py-1 text-xs font-medium rounded-full transition-all duration-200 ${
               activeTab === "studio"
-                ? "bg-white dark:bg-neutral-700/90 text-neutral-900 dark:text-white shadow-sm"
-                : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+                ? "apple-segment-active font-semibold"
+                : "text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-white"
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5 text-apple-blue" />
             Tailor Studio
           </button>
 
           <button
             onClick={() => setActiveTab("master")}
-            className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 ${
+            className={`px-4 py-1 text-xs font-medium rounded-full transition-all duration-200 ${
               activeTab === "master"
-                ? "bg-white dark:bg-neutral-700/90 text-neutral-900 dark:text-white shadow-sm"
-                : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+                ? "apple-segment-active font-semibold"
+                : "text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-white"
             }`}
           >
-            <FileText className="w-3.5 h-3.5 text-emerald-500" />
             Master LaTeX
           </button>
 
           <button
             onClick={() => setActiveTab("vault")}
-            className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 ${
+            className={`flex items-center gap-1.5 px-4 py-1 text-xs font-medium rounded-full transition-all duration-200 ${
               activeTab === "vault"
-                ? "bg-white dark:bg-neutral-700/90 text-neutral-900 dark:text-white shadow-sm"
-                : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+                ? "apple-segment-active font-semibold"
+                : "text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-white"
             }`}
           >
-            <Briefcase className="w-3.5 h-3.5 text-amber-500" />
-            Applications Vault
+            <span>Applications Vault</span>
             {vaultCount > 0 && (
-              <span className="ml-0.5 px-1.5 py-0.2 text-[10px] font-semibold rounded-full bg-apple-blue text-white">
+              <span className="px-1.5 py-0.2 text-[10px] rounded-full bg-black/10 dark:bg-white/20 text-[#1d1d1f] dark:text-white font-semibold">
                 {vaultCount}
               </span>
             )}
           </button>
         </nav>
 
-        {/* Right Actions: Theme Toggle & Settings */}
-        <div className="flex items-center gap-2">
+        {/* Right Actions */}
+        <div className="flex items-center gap-1.5">
           <button
             onClick={onToggleTheme}
             aria-label="Toggle Theme"
-            className="p-2 rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200/50 dark:hover:bg-neutral-800/70 transition-colors"
+            className="p-2 rounded-full text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
           >
-            {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-neutral-700" />}
+            {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
           </button>
 
           <button
             onClick={onOpenSettings}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-200/60 dark:bg-neutral-800/80 hover:bg-neutral-300/60 dark:hover:bg-neutral-700/80 text-xs font-medium text-neutral-700 dark:text-neutral-200 transition-all border border-black/[0.04] dark:border-white/[0.08]"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium text-[#1d1d1f] dark:text-[#f5f5f7] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
           >
-            <Settings className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Settings & API</span>
+            <Settings className="w-3.5 h-3.5 text-[#86868b]" />
+            <span className="hidden sm:inline">Settings</span>
           </button>
         </div>
 
       </div>
 
-      {/* Mobile Navigation Row */}
-      <div className="flex md:hidden px-4 py-2 border-t border-black/[0.04] dark:border-white/[0.06] bg-neutral-100/50 dark:bg-neutral-900/50 justify-around">
-        <button
-          onClick={() => setActiveTab("studio")}
-          className={`flex items-center gap-1.5 py-1 text-xs font-medium ${
-            activeTab === "studio" ? "text-apple-blue font-semibold" : "text-neutral-500"
-          }`}
-        >
-          <Sparkles className="w-3.5 h-3.5" />
-          Studio
-        </button>
-        <button
-          onClick={() => setActiveTab("master")}
-          className={`flex items-center gap-1.5 py-1 text-xs font-medium ${
-            activeTab === "master" ? "text-emerald-500 font-semibold" : "text-neutral-500"
-          }`}
-        >
-          <FileText className="w-3.5 h-3.5" />
-          Master
-        </button>
-        <button
-          onClick={() => setActiveTab("vault")}
-          className={`flex items-center gap-1.5 py-1 text-xs font-medium ${
-            activeTab === "vault" ? "text-amber-500 font-semibold" : "text-neutral-500"
-          }`}
-        >
-          <Briefcase className="w-3.5 h-3.5" />
-          Vault ({vaultCount})
-        </button>
+      {/* Mobile Tab Switcher */}
+      <div className="flex md:hidden px-4 py-2 border-t border-black/[0.04] dark:border-white/[0.06] justify-center bg-white/40 dark:bg-black/40">
+        <div className="apple-segment-wrapper flex w-full justify-around">
+          <button
+            onClick={() => setActiveTab("studio")}
+            className={`flex-1 py-1 text-xs font-medium rounded-full text-center ${
+              activeTab === "studio" ? "apple-segment-active font-semibold" : "text-[#86868b]"
+            }`}
+          >
+            Studio
+          </button>
+          <button
+            onClick={() => setActiveTab("master")}
+            className={`flex-1 py-1 text-xs font-medium rounded-full text-center ${
+              activeTab === "master" ? "apple-segment-active font-semibold" : "text-[#86868b]"
+            }`}
+          >
+            Master
+          </button>
+          <button
+            onClick={() => setActiveTab("vault")}
+            className={`flex-1 py-1 text-xs font-medium rounded-full text-center ${
+              activeTab === "vault" ? "apple-segment-active font-semibold" : "text-[#86868b]"
+            }`}
+          >
+            Vault ({vaultCount})
+          </button>
+        </div>
       </div>
     </header>
   );

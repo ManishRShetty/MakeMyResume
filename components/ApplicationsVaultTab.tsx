@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Search, Trash2, Download, FileText, ExternalLink, Calendar, CheckCircle2, Clock, Sparkles, Building2, Briefcase } from "lucide-react";
+import { Search, Trash2, Download, Briefcase, FileCode, CheckCircle } from "lucide-react";
 import { getApplications, deleteApplication, addOrUpdateApplication, TailoredApplication } from "@/lib/storage";
 
 interface ApplicationsVaultTabProps {
@@ -65,41 +65,44 @@ export const ApplicationsVaultTab: React.FC<ApplicationsVaultTabProps> = ({
 
   return (
     <div className="space-y-6 animate-fade-in">
+      
       {/* Header Banner & Filters */}
-      <div className="apple-card p-5 space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="apple-bento-card p-6 sm:p-8 space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <h2 className="text-base font-semibold text-neutral-900 dark:text-white flex items-center gap-2">
-              <Briefcase className="w-4 h-4 text-amber-500" />
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#0071e3] dark:text-[#2997ff]">
+              Placement Archives
+            </span>
+            <h2 className="text-xl sm:text-2xl font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight mt-1">
               Company Applications Vault
             </h2>
-            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
-              Access and manage all your tailored LaTeX resumes and application statuses across companies.
+            <p className="text-xs text-[#86868b] mt-1">
+              Manage your company-specific tailored LaTeX resumes and interview stages in one place.
             </p>
           </div>
 
-          {/* Search & Filter Bar */}
+          {/* Search & Filter */}
           <div className="flex items-center gap-3 flex-wrap">
             <div className="relative">
-              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+              <Search className="w-3.5 h-3.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#86868b]" />
               <input
                 type="text"
                 placeholder="Search company or skill..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 pr-3 py-1.5 rounded-xl bg-neutral-100 dark:bg-neutral-800/80 border border-black/[0.08] dark:border-white/[0.1] text-xs text-neutral-900 dark:text-white apple-focus w-48 sm:w-60"
+                className="pl-9 pr-4 py-2 rounded-full bg-[#f5f5f7] dark:bg-[#1c1c1e] border border-black/[0.06] dark:border-white/[0.08] text-xs text-[#1d1d1f] dark:text-[#f5f5f7] apple-focus w-48 sm:w-60"
               />
             </div>
 
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-1.5 rounded-xl bg-neutral-100 dark:bg-neutral-800/80 border border-black/[0.08] dark:border-white/[0.1] text-xs text-neutral-900 dark:text-white apple-focus"
+              className="px-4 py-2 rounded-full bg-[#f5f5f7] dark:bg-[#1c1c1e] border border-black/[0.06] dark:border-white/[0.08] text-xs text-[#1d1d1f] dark:text-[#f5f5f7] apple-focus"
             >
               <option value="all">All Statuses</option>
               <option value="Applied">Applied</option>
               <option value="Interview">Interview</option>
-              <option value="Offer">Offer</option>
+              <option value="Offer">Offer 🎉</option>
               <option value="Draft">Draft</option>
               <option value="Rejected">Rejected</option>
             </select>
@@ -109,72 +112,67 @@ export const ApplicationsVaultTab: React.FC<ApplicationsVaultTabProps> = ({
 
       {/* Cards Grid */}
       {filteredApps.length === 0 ? (
-        <div className="apple-card p-12 text-center space-y-3">
-          <div className="w-12 h-12 rounded-2xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mx-auto text-neutral-400">
+        <div className="apple-bento-card p-16 text-center space-y-3">
+          <div className="w-12 h-12 rounded-2xl bg-[#f5f5f7] dark:bg-[#1c1c1e] flex items-center justify-center mx-auto text-[#86868b]">
             <Briefcase className="w-6 h-6" />
           </div>
-          <h3 className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
-            No Tailored Resumes Found
+          <h3 className="text-base font-semibold text-[#1d1d1f] dark:text-[#f5f5f7]">
+            No Resumes in Vault Yet
           </h3>
-          <p className="text-xs text-neutral-500 max-w-sm mx-auto">
-            Generate your first company-specific resume in the Tailor Studio to track it here automatically.
+          <p className="text-xs text-[#86868b] max-w-sm mx-auto">
+            Generate your first company-specific resume in the Tailor Studio and it will appear here automatically.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredApps.map((app) => (
             <div
               key={app.id}
               onClick={() => onLoadIntoStudio(app)}
-              className="apple-card p-5 hover:scale-[1.01] hover:shadow-apple-card-dark cursor-pointer flex flex-col justify-between space-y-4 group"
+              className="apple-bento-card p-6 cursor-pointer flex flex-col justify-between space-y-5 group"
             >
               <div>
-                {/* Card Top: Company & ATS Badge */}
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-apple-blue/10 to-purple-500/10 dark:from-apple-blue/20 dark:to-purple-500/20 flex items-center justify-center text-apple-blue dark:text-apple-blue-light font-bold text-sm border border-apple-blue/20">
-                      {app.companyName ? app.companyName.charAt(0).toUpperCase() : "C"}
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-sm text-neutral-900 dark:text-white group-hover:text-apple-blue transition-colors">
-                        {app.companyName || "Target Company"}
-                      </h3>
-                      <p className="text-[11px] text-neutral-500 dark:text-neutral-400 line-clamp-1">
-                        {app.jobTitle || "Software Engineer"}
-                      </p>
-                    </div>
+                {/* Company Name & ATS Score */}
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="font-semibold text-base text-[#1d1d1f] dark:text-[#f5f5f7] group-hover:text-[#0071e3] transition-colors">
+                      {app.companyName || "Target Company"}
+                    </h3>
+                    <p className="text-xs text-[#86868b] mt-0.5 line-clamp-1">
+                      {app.jobTitle || "Software Engineer"}
+                    </p>
                   </div>
 
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-apple-blue/10 text-apple-blue dark:bg-apple-blue/20 dark:text-apple-blue-light border border-apple-blue/20">
+                  <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#0071e3]/10 text-[#0071e3] dark:bg-[#2997ff]/20 dark:text-[#2997ff]">
                     {app.atsScore}% ATS
                   </span>
                 </div>
 
                 {/* Keywords Chips */}
-                <div className="mt-3 flex flex-wrap gap-1">
+                <div className="mt-4 flex flex-wrap gap-1.5">
                   {app.matchedKeywords.slice(0, 4).map((kw, i) => (
                     <span
                       key={i}
-                      className="px-1.5 py-0.2 rounded text-[9px] bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400"
+                      className="px-2 py-0.5 rounded-full text-[10px] bg-[#f5f5f7] dark:bg-[#1c1c1e] text-[#86868b] font-medium"
                     >
                       {kw}
                     </span>
                   ))}
                   {app.matchedKeywords.length > 4 && (
-                    <span className="text-[9px] text-neutral-400 px-1 py-0.2">
-                      +{app.matchedKeywords.length - 4} more
+                    <span className="text-[10px] text-[#86868b] px-1 py-0.5">
+                      +{app.matchedKeywords.length - 4}
                     </span>
                   )}
                 </div>
               </div>
 
               {/* Card Footer: Status Selector & Actions */}
-              <div className="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between">
+              <div className="pt-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between">
                 <select
                   value={app.status}
                   onClick={(e) => e.stopPropagation()}
                   onChange={(e) => handleStatusChange(app, e.target.value as any, e)}
-                  className="px-2 py-1 text-[11px] rounded-lg bg-neutral-100 dark:bg-neutral-800 border border-black/[0.06] dark:border-white/[0.08] text-neutral-700 dark:text-neutral-300 font-medium"
+                  className="px-3 py-1 text-xs rounded-full bg-[#f5f5f7] dark:bg-[#1c1c1e] border border-black/[0.06] dark:border-white/[0.08] text-[#1d1d1f] dark:text-[#f5f5f7] font-medium"
                 >
                   <option value="Applied">Applied</option>
                   <option value="Interview">Interview</option>
@@ -183,20 +181,20 @@ export const ApplicationsVaultTab: React.FC<ApplicationsVaultTabProps> = ({
                   <option value="Rejected">Rejected</option>
                 </select>
 
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1">
                   <button
                     onClick={(e) => handleDownloadTex(app, e)}
-                    title="Download LaTeX Source"
-                    className="p-1.5 rounded-lg text-neutral-500 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-200/50 dark:hover:bg-neutral-800 transition-colors"
+                    title="Download LaTeX"
+                    className="p-2 rounded-full text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
                   >
-                    <Download className="w-3.5 h-3.5" />
+                    <Download className="w-4 h-4" />
                   </button>
                   <button
                     onClick={(e) => handleDelete(app.id, e)}
-                    title="Delete resume"
-                    className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
+                    title="Delete"
+                    className="p-2 rounded-full text-[#86868b] hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>

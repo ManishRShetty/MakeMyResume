@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { Download, ZoomIn, ZoomOut, RotateCcw, FileText, Printer, Sparkles, Check, AlertCircle } from "lucide-react";
+import { Download, ZoomIn, ZoomOut, RotateCcw, FileText, Check } from "lucide-react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { extractPlainTextFromLatex } from "@/lib/latex-utils";
@@ -24,7 +24,6 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
   const [pdfSuccess, setPdfSuccess] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
-  // Parse structured text sections from LaTeX for clean visual preview
   const plainText = extractPlainTextFromLatex(latex);
 
   const handleZoomIn = () => setZoom((prev) => Math.min(prev + 10, 140));
@@ -36,7 +35,6 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
     setPdfSuccess(false);
 
     try {
-      // 1. Try server compile API first
       const safeName = `${companyName || "Company"}_${jobTitle || "Resume"}_Resume`
         .replace(/[^a-zA-Z0-9_-]/g, "_");
 
@@ -61,7 +59,7 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
         return;
       }
 
-      // 2. High fidelity HTML to Canvas to jsPDF fallback
+      // High fidelity HTML to Canvas to jsPDF fallback
       if (printRef.current) {
         const element = printRef.current;
         const canvas = await html2canvas(element, {
@@ -83,7 +81,7 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
       }
     } catch (e) {
       console.error("PDF generation error:", e);
-      alert("Failed to export PDF automatically. Please use the Print button or Download .tex.");
+      alert("Failed to export PDF. You can also download the .tex source directly.");
     } finally {
       setIsGeneratingPdf(false);
     }
@@ -101,57 +99,53 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
     URL.revokeObjectURL(url);
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   return (
-    <div className="space-y-3">
-      {/* Viewer Action Bar */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-white/80 dark:bg-neutral-900/80 apple-glass rounded-2xl border border-black/[0.08] dark:border-white/[0.1]">
+    <div className="space-y-4">
+      {/* Action Bar */}
+      <div className="flex items-center justify-between px-4 py-2.5 bg-[#f5f5f7] dark:bg-[#1c1c1e] rounded-full border border-black/[0.06] dark:border-white/[0.08]">
         
         {/* Zoom Controls */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <button
             onClick={handleZoomOut}
-            className="p-1.5 rounded-lg text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200/50 dark:hover:bg-neutral-800 transition-colors"
+            className="p-1.5 rounded-full text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-white transition-colors"
             title="Zoom Out"
           >
             <ZoomOut className="w-4 h-4" />
           </button>
-          <span className="text-xs font-mono text-neutral-500 w-10 text-center">
+          <span className="text-xs font-mono text-[#86868b] w-10 text-center">
             {zoom}%
           </span>
           <button
             onClick={handleZoomIn}
-            className="p-1.5 rounded-lg text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200/50 dark:hover:bg-neutral-800 transition-colors"
+            className="p-1.5 rounded-full text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-white transition-colors"
             title="Zoom In"
           >
             <ZoomIn className="w-4 h-4" />
           </button>
           <button
             onClick={handleResetZoom}
-            className="p-1.5 rounded-lg text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200/50 dark:hover:bg-neutral-800 transition-colors"
+            className="p-1.5 rounded-full text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-white transition-colors"
             title="Reset Zoom"
           >
             <RotateCcw className="w-3.5 h-3.5" />
           </button>
         </div>
 
-        {/* Download & Print Buttons */}
+        {/* Download Buttons */}
         <div className="flex items-center gap-2">
           <button
             onClick={handleDownloadTex}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-xs font-medium text-neutral-700 dark:text-neutral-200 transition-colors border border-black/[0.06] dark:border-white/[0.08]"
+            className="px-3.5 py-1.5 rounded-full text-xs font-medium apple-button-secondary flex items-center gap-1.5"
           >
-            <FileText className="w-3.5 h-3.5" />
-            .tex Source
+            <FileText className="w-3.5 h-3.5 text-[#86868b]" />
+            .tex Code
           </button>
 
           <button
             onClick={handleDownloadPdf}
             disabled={isGeneratingPdf}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-apple-blue hover:bg-apple-blue-hover text-white text-xs font-medium shadow-md shadow-apple-blue/20 transition-all duration-150 disabled:opacity-50"
+            className="px-4 py-1.5 rounded-full apple-button-primary text-xs font-medium flex items-center gap-1.5 shadow-md shadow-[#0071e3]/20 disabled:opacity-50"
           >
             {isGeneratingPdf ? (
               <>
@@ -160,7 +154,7 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
               </>
             ) : pdfSuccess ? (
               <>
-                <Check className="w-3.5 h-3.5 text-emerald-300" />
+                <Check className="w-3.5 h-3.5" />
                 Downloaded!
               </>
             ) : (
@@ -173,26 +167,24 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
         </div>
       </div>
 
-      {/* Scaled PDF Document Container */}
-      <div className="w-full overflow-auto p-4 sm:p-8 bg-neutral-200/60 dark:bg-black/50 rounded-2xl border border-black/[0.06] dark:border-white/[0.08] flex justify-center min-h-[680px]">
+      {/* PDF Document Canvas */}
+      <div className="w-full overflow-auto p-4 sm:p-8 bg-[#f5f5f7] dark:bg-[#121214] rounded-3xl border border-black/[0.06] dark:border-white/[0.08] flex justify-center min-h-[660px]">
         <div
           style={{ transform: `scale(${zoom / 100})`, transformOrigin: "top center" }}
           className="transition-transform duration-150 ease-out"
         >
-          {/* Printable A4 Resume Container */}
+          {/* A4 Paper */}
           <div
             ref={printRef}
             id="printable-resume-page"
-            className="w-[210mm] min-h-[297mm] bg-white text-neutral-900 shadow-2xl p-[18mm] rounded-sm font-sans select-text leading-snug tracking-normal"
+            className="w-[210mm] min-h-[297mm] bg-white text-[#1d1d1f] shadow-2xl p-[18mm] rounded-sm font-sans select-text leading-snug"
             style={{ boxSizing: "border-box" }}
           >
-            {/* Formatted Resume Body */}
             <div className="space-y-4 text-[12px] text-neutral-800">
               {plainText.split("\n\n").map((block, idx) => {
                 const trimmed = block.trim();
                 if (!trimmed) return null;
 
-                // Section Headers
                 if (trimmed.startsWith("===") && trimmed.endsWith("===")) {
                   const title = trimmed.replace(/===/g, "").trim();
                   return (
@@ -204,7 +196,6 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
                   );
                 }
 
-                // Heading / Name block (first block)
                 if (idx === 0) {
                   return (
                     <div key={idx} className="text-center pb-2 border-b border-neutral-300">
@@ -218,7 +209,6 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
                   );
                 }
 
-                // Bullet item lines
                 const lines = trimmed.split("\n");
                 return (
                   <div key={idx} className="space-y-1">
@@ -231,7 +221,6 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
                           </div>
                         );
                       }
-                      // Role / Company / Education Header Line
                       return (
                         <div key={lIdx} className="font-medium text-neutral-900 leading-snug">
                           {line}

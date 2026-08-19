@@ -6,15 +6,15 @@ import { TailorStudioTab } from "@/components/TailorStudioTab";
 import { MasterResumeTab } from "@/components/MasterResumeTab";
 import { ApplicationsVaultTab } from "@/components/ApplicationsVaultTab";
 import { SettingsModal } from "@/components/SettingsModal";
-import { getMasterLatex, getApplications, getSettings, saveSettings, TailoredApplication, UserSettings } from "@/lib/storage";
-import { Sparkles, FileCode, CheckCircle, ArrowRight, ShieldCheck, Zap } from "lucide-react";
+import { getMasterLatex, getApplications, getSettings, saveSettings, TailoredApplication } from "@/lib/storage";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<"studio" | "master" | "vault">("studio");
   const [masterLatex, setMasterLatex] = useState<string>("");
   const [vaultCount, setVaultCount] = useState<number>(0);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
+  // Default to light mode for that crisp Apple white aesthetic, or dark mode
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
   const [isMounted, setIsMounted] = useState<boolean>(false);
 
   useEffect(() => {
@@ -23,14 +23,14 @@ export default function Home() {
     setMasterLatex(loadedMaster);
     setVaultCount(getApplications().length);
 
-    // Load theme preference
+    // Check saved settings
     const settings = getSettings();
-    if (settings.theme === "light") {
-      setIsDarkMode(false);
-      document.documentElement.classList.remove("dark");
-    } else {
+    if (settings.theme === "dark") {
       setIsDarkMode(true);
       document.documentElement.classList.add("dark");
+    } else {
+      setIsDarkMode(false);
+      document.documentElement.classList.remove("dark");
     }
   }, []);
 
@@ -54,13 +54,11 @@ export default function Home() {
     setActiveTab("studio");
   };
 
-  if (!isMounted) {
-    return null;
-  }
+  if (!isMounted) return null;
 
   return (
-    <div className="min-h-screen flex flex-col transition-colors duration-300">
-      {/* Translucent Frosted Glass Navbar */}
+    <div className="min-h-screen flex flex-col bg-[#fbfbfd] dark:bg-[#000000] text-[#1d1d1f] dark:text-[#f5f5f7] transition-colors duration-300 selection:bg-[#0071e3] selection:text-white">
+      {/* Apple Floating Island Navigation */}
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -71,34 +69,23 @@ export default function Home() {
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-10">
         
-        {/* Subtle Minimalist Status Banner */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-4 py-2.5 rounded-2xl bg-neutral-200/40 dark:bg-neutral-900/40 border border-black/[0.04] dark:border-white/[0.06] text-xs text-neutral-600 dark:text-neutral-400">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="font-medium text-neutral-800 dark:text-neutral-200">
-              Placement Season Mode Active
-            </span>
-            <span className="hidden sm:inline text-neutral-400">|</span>
-            <span className="hidden sm:inline">
-              Instant LaTeX parsing & STAR formula optimization ready.
-            </span>
-          </div>
-
-          <div className="flex items-center gap-4 text-[11px]">
-            <span className="flex items-center gap-1">
-              <Zap className="w-3 h-3 text-amber-500" />
-              Gemini AI Tailoring
-            </span>
-            <span className="flex items-center gap-1">
-              <ShieldCheck className="w-3 h-3 text-apple-blue" />
-              LaTeX Syntax Guard
-            </span>
-          </div>
+        {/* Apple Iconic Hero Header */}
+        <div className="text-center space-y-3 pt-2 pb-2">
+          <p className="text-xs font-semibold uppercase tracking-widest text-[#0071e3] dark:text-[#2997ff]">
+            Placement Resume Engine
+          </p>
+          <h1 className="apple-headline text-4xl sm:text-6xl md:text-7xl text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight leading-[1.08]">
+            One resume. <br className="hidden sm:inline" />
+            <span className="text-[#86868b]">Tailored for every company.</span>
+          </h1>
+          <p className="apple-subheadline text-base sm:text-lg text-[#86868b] max-w-2xl mx-auto font-normal leading-relaxed pt-1">
+            Feed any job description. AI refines your master LaTeX code with STAR metrics, analyzes ATS keyword density, and compiles your company PDF instantly.
+          </p>
         </div>
 
-        {/* Tab Views */}
+        {/* View Content */}
         {activeTab === "studio" && (
           <TailorStudioTab
             masterLatex={masterLatex}
@@ -128,25 +115,29 @@ export default function Home() {
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
         onSettingsUpdated={(updatedSettings) => {
-          if (updatedSettings.theme === "light") {
-            setIsDarkMode(false);
-            document.documentElement.classList.remove("dark");
-          } else {
+          if (updatedSettings.theme === "dark") {
             setIsDarkMode(true);
             document.documentElement.classList.add("dark");
+          } else {
+            setIsDarkMode(false);
+            document.documentElement.classList.remove("dark");
           }
         }}
       />
 
-      {/* Apple-style Minimalist Footer */}
-      <footer className="w-full border-t border-black/[0.04] dark:border-white/[0.06] py-6 text-center text-xs text-neutral-500 dark:text-neutral-500">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p>
-            MakeMyResume · Designed for High-Impact Campus & Off-Campus Placements.
+      {/* Apple Minimalist Footer */}
+      <footer className="w-full border-t border-black/[0.06] dark:border-white/[0.08] mt-20 py-8 text-xs text-[#86868b]">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="font-normal">
+            MakeMyResume. Designed for Campus & Off-Campus Technical Placements.
           </p>
-          <p className="text-[11px]">
-            LaTeX + TypeScript + Apple Minimalist Aesthetic
-          </p>
+          <div className="flex items-center gap-4 text-[#86868b]">
+            <span>LaTeX Safe</span>
+            <span>·</span>
+            <span>STAR Formula</span>
+            <span>·</span>
+            <span>ATS Optimized</span>
+          </div>
         </div>
       </footer>
     </div>
